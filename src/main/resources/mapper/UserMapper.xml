@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.UserMapper">
+
+    <insert id="insertSelective" parameterType="com.payn.ink.domain.User">
+        insert into `user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="homeUrl != null">
+                home_url,
+            </if>
+            <if test="screenName != null">
+                screen_name,
+            </if>
+            <if test="isActive != null">
+                is_active,
+            </if>
+            <if test="logged != null">
+                logged,
+            </if>
+            <if test="groupName != null">
+                group_name
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="homeUrl != null">
+                #{homeUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="screenName != null">
+                #{screenName,jdbcType=VARCHAR},
+            </if>
+            <if test="isActive != null">
+                #{isActive,jdbcType=BIT},
+            </if>
+            <if test="logged != null">
+                #{logged,jdbcType=BIT},
+            </if>
+            <if test="groupName != null">
+                #{groupName,jdbcType=VARCHAR}
+            </if>
+        </trim>
+    </insert>
+    
+    <select id="userLogin" resultType="com.payn.ink.domain.User" parameterType="com.payn.ink.domain.User">
+        SELECT
+            user_id,
+            username,
+            `password`,
+            email
+        FROM
+            `user`
+        WHERE
+	        is_active = '1'
+	    AND username = #{username}
+	    AND password = #{password}    
+    </select>
+    
+    <select id="countByUserName" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            `user`
+        WHERE
+            username = #{username}
+    </select>
+    
+    <select id="getAdminUser" resultType="com.payn.ink.domain.User">
+        SELECT
+            user_id,
+            username,
+            email,
+            home_url,
+            screen_name
+        FROM
+            `user`
+        WHERE
+            screen_name = 'admin'
+    </select>
+    
+    <delete id="deleteUserByUsername" parameterType="string">
+        delete from `user`
+        where username = #{username}
+    </delete>
+
+
+</mapper>

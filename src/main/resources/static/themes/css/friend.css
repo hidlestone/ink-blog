@@ -1,0 +1,117 @@
+h1 {
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+a:active, a:hover {
+    outline: 0;
+}
+
+.page_cover .one_page {
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.page_cover .aha {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    text-align: center;
+    padding: 135px 0 150px 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page_cover .aha .with_bg {
+    color: #ffffff;
+}
+
+.page_cover .aha .with_bg .title {
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 150px;
+}
+
+.page_cover .aha .title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 42px;
+    line-height: 1.1;
+}
+
+.page_cover .aha .with_bg .content {
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.05);
+}
+
+.p_text {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}
+
+.page_cover .aha .buttons {
+    margin-top: 115px;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page_cover .aha .with_bg .buttons a {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+
+.page_cover a {
+    text-decoration: none;
+    color: #4d4d4d;
+}
+
+.page_cover .aha .buttons a {
+    letter-spacing: 1px;
+    font-family: Arial;
+    font-size: 16px;
+    padding: 12px 25px;
+    border-radius: 3px;
+    margin: 0 18px;
+    display: inline-block;
+    margin-bottom: 20px !important;
+    line-height: 1.2;
+    border: 1px solid #d9d9d9;
+    color: #4d4d4d;
+}
+
+.pay_img {
+    background-size: 100% 100%;
+    height: 0;
+    padding-bottom: 100%;
+    -moz-background-size: 100% 100%;
+}
+
+.question_img {
+    max-width: 660px;
+    height: 300px;
+    background-size: 100% 100%;
+    display: block;
+    position: relative;
+    margin: auto;
+    margin-top: 70px;
+    background-repeat: no-repeat;
+    border-radius: 3px;
+}

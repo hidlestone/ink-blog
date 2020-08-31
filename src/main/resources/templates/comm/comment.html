@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="comment">
+<script src="/admin/layui/layui.js"></script>
+<body>
+</body>
+<!--<script src="https://www.layuicdn.com/layui-v2.5.4/layui.js"></script>-->
+<!--<script th:src="@{~/admin/layui/layui.js}"></script>-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        layui.use('layer', function () {
+        });
+    });
+    (function () {
+        window.TaleComment = {
+            reply: function (articleCommentId, mainCommentId, commentatorName) {
+                $('#comment-form input[name=articleCommentId]').val(articleCommentId);
+                $('#comment-form input[name=mainCommentId]').val(mainCommentId);
+                $("html,body").animate({scrollTop: $('div.comment-container').offset().top}, 500);
+                $('#comment-form #textarea').focus();
+                if (commentatorName) {
+                    $('#comment-form #textarea').attr("placeholder", "回复 " + commentatorName + " : ");
+                }
+            },
+            questionReply: function (questionId, questionerName) {
+                $('#misubmit').html("回复");
+                $('#comment-form input[name=questionId]').val(questionId);
+                $("html,body").animate({scrollTop: $('div.comment-container').offset().top}, 500);
+                $('#comment-form #textarea').focus();
+                if (questionerName) {
+                    $('#comment-form #textarea').attr("placeholder", "回复 " + questionerName + " : ");
+                }
+            },
+            subComment: function () {
+                $.ajax({
+                    type: 'post',
+                    url: '/comment',
+                    data: $('#comment-form').serialize(),
+                    async: false,
+                    dataType: 'json',
+                    success: function (result) {
+                        $('#comment-form input[name=coid]').val('');
+                        if (result && result.success) {
+                            // alert(result.message);
+                            layer.msg(result.message, {icon: 1});
+                            setTimeout("window.location.reload()", 2000);
+                        } else {
+                            if (result.message) {
+                                layer.msg(result.message, {icon: 2});
+                                // setTimeout("window.location.reload()", 3000);
+                            }
+                        }
+                    }
+                });
+                return false;
+            },
+            saveQuestionAnswer: function () {
+                $.ajax({
+                    type: 'post',
+                    url: '/question/savequestionanswer',
+                    data: $('#comment-form').serialize(),
+                    async: false,
+                    dataType: 'json',
+                    success: function (result) {
+                        $('#comment-form input[name=questionId]').val('');
+                        if (result && result.success) {
+                            layer.msg(result.message, {icon: 1});
+                            setTimeout("window.location.reload();", 2000);
+                        } else {
+                            if (result.message) {
+                                layer.msg(result.message, {icon: 2});
+                                $("#qid").valueOf()
+                                // window.location.reload();
+                            }
+                        }
+                    }
+                });
+                return false;
+            },
+            initQuestion: function () {
+                $('#comment-form input[name=questionId]').val('');
+                layer.msg("当前为提问模式", {icon: 1});
+            }
+        };
+    })();
+
+    function getCommentCookie(name) {
+        var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+        if (arr = document.cookie.match(reg))
+            return unescape(decodeURI(arr[2]));
+        else
+            return null;
+    }
+
+    function addCommentInputValue() {
+        document.getElementById('author').value = getCommentCookie('remember_author_ink');
+        document.getElementById('mail').value = getCommentCookie('remember_mail_ink');
+        document.getElementById('url').value = getCommentCookie('remember_url_ink');
+    }
+
+    addCommentInputValue();
+
+</script>
+</html>

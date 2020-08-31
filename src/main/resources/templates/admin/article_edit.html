@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="admin/header::header"></div>
+<body class="skin-black-light sidebar-mini">
+<!--<link rel="stylesheet" href="https://unpkg.com/mditor@1.0.5/dist/css/mditor.min.css" />-->
+<link rel="stylesheet" th:href="@{~/admin/css/mditor.min.css}"/>
+<style type="text/css">
+	.col-sm-12 mditor split {
+		height: 650px;
+	}
+</style>
+<div class="wrapper">
+	<!--头-->
+	<div th:replace="admin/sidebar::sidebar"></div>
+	<!-- 内容页 -->
+	<div class="content-wrapper">
+		<section class="content-header">
+			<h3>
+				<th:block th:if="${null != article}">
+					编辑文章
+				</th:block>
+				<th:block th:unless="${null != article}">
+					发布文章
+				</th:block>
+			</h3>
+			<!--<ol class="breadcrumb">-->
+			<!--<li><a href="#"><i class="fa fa-dashboard"></i> </a></li>-->
+			<!--<li class="active">Dashboard</li>-->
+			<!--</ol>-->
+		</section>
+		<section class="content">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="box box-info">
+						<div class="box-header with-border">
+							<h3 class="box-title">信息</h3>
+						</div>
+						<!-- /.box-header -->
+						<!-- form start -->
+						<form id="articleForm" class="form-horizontal">
+							<div class="box-body">
+								<input type="hidden" name="articleId"
+								       th:value="${article!=null and article.articleId!=null}?${article.articleId}: ''"
+								       id="articleId"/>
+								<!--<input type="hidden" name="articleMetaCatId"-->
+								<!--th:value="${article!=null and article.articleMetaCatId!=null}?${article.articleMetaCatId}: '0'" id="catId"/>-->
+								<input type="hidden" name="articleStatus"
+								       th:value="${article!=null and article.articleStatus !=null}?${article.articleStatus}: '1'"
+								       id="status"/>
+								<input type="hidden" name="allowComment"
+								       th:value="${article!=null and article.allowComment !=null}?${article.allowComment}: '1'"
+								       id="allow_comment"/>
+								<input type="hidden" name="allowPing"
+								       th:value="${article!=null and article.allowPing !=null}?${article.allowPing}: '1'"
+								       id="allow_ping"/>
+								<input type="hidden" name="allowFeed"
+								       th:value="${article!=null and article.allowFeed !=null}?${article.allowFeed}: '1'"
+								       id="allow_feed"/>
+								<input type="hidden" name="allowThumbImg"
+								       th:value="${article!=null and article.allowThumbImg !=null}?${article.allowThumbImg}: '1'"
+								       id="allow_thumb_img"/>
+								<input type="hidden" name="hit"
+								       th:value="${article!=null and article.hit !=null}?${article.hit}: '0'"
+								       id="hit"/>
+								<input type="hidden" name="content" id="content-editor"/>
+								<div class="form-group">
+									<label for="title" class="col-sm-2 control-label">文章标题：</label>
+									<div class="col-sm-4">
+										<input type="text"
+										       th:value="${article!=null and article.title!=null }?${article.title}: ''"
+										       class="form-control" name="title" id="title" placeholder="请输入文章标题">
+									</div>
+									<label for="tag" class="col-sm-2 control-label">文章标签：</label>
+									<div class="col-sm-4">
+										<!--<input type="text" th:value="${article!=null and article.tag !=null}?${article.tag}: ''"
+											   class="form-control" name="tag" id="tag" placeholder="请输入文章标签">-->
+										<select name="tag" xm-select="select_tag" id="tag">
+											<th:block th:if="${null != tags}">
+												<th:block th:each="tag : ${tags}">
+													<option th:value="${tag.articleMetaId}"
+													        th:text="${tag.metaName}"></option>
+												</th:block>
+											</th:block>
+										</select>
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label for="slug" class="col-sm-2 control-label">访问路径：</label>
+									<div class="col-sm-4">
+										<input type="text"
+										       class="form-control" name="slug" id="slug"
+										       placeholder="自定义访问路径，如：my-first-article  默认为文章id"
+										       th:value="${article!=null and article.slug !=null}?${article.slug}: ''">
+									</div>
+									
+									<label for="category" class="col-sm-2 control-label">文章类型：</label>
+									<div class="col-sm-4">
+										<select name="categories" xm-select="select_category" xm-select-radio="" id="category">
+											<th:block th:if="${null != categories}">
+												<th:block th:each="c : ${categories}">
+													<option th:value="${c.articleMetaId}" th:text="${c.metaName}"
+													        th:selected="${null != article and article.articleMetaCatId==c.articleMetaId}?selected:false"></option>
+												</th:block>
+											</th:block>
+										</select>
+										<!--<select class="form-control" id="articleMetaCatId" name="articleMetaCatId">
+											<th:block th:if="${null != categories}">
+												<th:block th:each="c : ${categories}">
+													<option th:value="${c.articleMetaId}" th:text="${c.metaName}+${article.articleMetaCatId}+${c.articleMetaId}"
+															th:selected="${null != article and article.articleMetaCatId==c.articleMetaId}?selected:false"></option>
+												</th:block>
+											</th:block>
+										</select>-->
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="checkbox col-sm-2">
+										<input type="button"
+										       onclick="addMusic()" value="添加音乐" class="btn btn-default"/>
+									</div>
+									<div class="checkbox col-sm-2">
+										<label>
+											<input type="checkbox" name="bt" id="comment" onclick="allowcomment()"
+											       th:checked="${article!=null and article.allowComment == 0}?false:true">
+											开启评论：
+										</label>
+									</div>
+									<div class="checkbox col-sm-2">
+										<label>
+											<input type="checkbox" name="ping" id="ping" onclick="allowping()"
+											       th:checked="${article!=null and article.allowPing == 0}?false:true">
+											允许Ping
+										</label>
+									</div>
+									<div class="checkbox col-sm-2">
+										<label>
+											<input type="checkbox" name="rss" id="rss" onclick="allowfeed()"
+											       th:checked="${article!=null and article.allowFeed == 0}?false:true">
+											允许订阅
+										</label>
+									</div>
+									<div class="checkbox col-sm-2">
+										<label>
+											<input type="checkbox" name="thumb" id="thumbImg" onclick="allowThumbImgBtn()"
+											       th:checked="${article!=null and article.allowThumbImg == 0}?false:true">
+											添加缩略图
+										</label>
+										<input type="text" class="form-control" name="thumbImgUrl" id="thumbImgUrl"
+										       placeholder="首页缩略图Url" style="width: 300px"
+										       th:value="${article!=null and article.thumbImg !=null}?${article.thumbImg}: ''">
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-12">
+										<textarea id="md_editor"
+										          th:utext="${article!=null and article.content !=null}?${article.content}: ''"></textarea>
+									</div>
+								</div>
+							</div>
+							<!-- /.box-body -->
+							<div class="box-footer">
+								<input type="button" th:style="${article==null?'display: none':''}"
+								       onclick="returnMenu()" value="返回列表" class="btn btn-default"/>
+								<input type="button" onclick="subArticle('post')" value="保存文章"
+								       class="btn btn-primary pull-right"/>
+								<input type="button" onclick="subArticle('draft')" value="存为草稿"
+								       class="btn btn-danger pull-right"/>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+	
+	<th:block th:if="${null != article}">
+		<th:block th:each="tag : ${article.tagList}">
+			<div class="meta_tag_id" style="display: none" th:text="${tag.articleMetaId}"></div>
+		</th:block>
+	</th:block>
+	
+	<!-- 底部 -->
+	<div th:replace="admin/footer::footer"></div>
+</div>
+</body>
+<script src="//cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+<link th:href="@{~/admin/layui/css/formSelects-v4.css}" rel="stylesheet">
+<script th:src="@{~/admin/js/formSelects-v4.js}"></script>
+<script th:src="@{~/admin/js/mditor.min.js}"></script>
+<script th:src="@{~/admin/js/article.js}"></script>
+<script>
+    var formSelects = layui.formSelects;
+    $(document).ready(function () {
+        var metaTagIdArr = [];
+        $(".meta_tag_id").each(function () {
+            metaTagIdArr.push($(this).text())
+        });
+        if (metaTagIdArr.length > 0) {
+            formSelects.value('select_tag', metaTagIdArr);
+        }
+    });
+	function addMusic() {
+        content = "<iframe frameborder=\"no\" border=\"0\" marginwidth=\"0\" marginheight=\"0\" width=330 height=86 src=\"//music.163.com/outchain/player?type=2&id=[音乐id]&auto=0&height=66\"></iframe>\n"
+        mditor.editor.insertAfterText(content);
+    }
+</script>
+</html>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.ArticleMetaMapper">
+
+    <select id="getMetaNameByPrimaryKey" resultType="java.lang.String" parameterType="long">
+        select meta_name
+        from article_meta
+        where article_meta_id = #{articleMetaId}
+    </select>
+    
+    <select id="getAllArticleMeta" resultType="com.payn.ink.vo.vdo.ArticleMetaVdo">
+        SELECT
+            am.article_meta_id,
+            am.meta_name AS metaName,
+            COUNT(1) AS count
+        FROM
+            article_tag atg
+        LEFT JOIN article ar ON ar.article_id = atg.article_id
+        LEFT JOIN article_meta am ON am.article_meta_id = atg.article_meta_tag_id
+        WHERE
+            ar.article_type = 'post'
+        AND ar.article_status = '1'
+        AND am.meta_type='tag'
+        GROUP BY
+            am.meta_name,am.article_meta_id
+    </select>
+    
+    <select id="getIconNameByArticleId" resultType="java.lang.String" parameterType="long">
+        SELECT
+            description
+        FROM
+            article_meta
+        WHERE
+            article_meta_id = (
+                SELECT
+                    article_meta_cat_id
+                FROM
+                    article
+                WHERE
+                    article_id = #{articleId:BIGINT}
+            )    
+    </select>
+    
+    <select id="getArticleTagsByArticleId" resultType="com.payn.ink.vo.vdo.ArticleMetaVdo" parameterType="long">
+        SELECT
+            b.article_meta_id,
+            b.meta_name
+        FROM
+            article_tag a
+        LEFT JOIN article_meta b ON b.article_meta_id = a.article_meta_tag_id
+        WHERE
+            a.article_id = #{articleId}
+        AND b.meta_type = 'tag'
+    </select>
+    
+    <select id="getAllMetaByType" resultType="com.payn.ink.vo.vdo.ArticleMetaManageVdo" parameterType="string">
+        SELECT
+            am.article_meta_id,
+            am.meta_name,
+            am.slug,
+            am.description,
+            IFNULL(temp.ac, 0) AS count
+        FROM
+            article_meta am
+        LEFT JOIN (
+            SELECT
+                article_meta_cat_id,
+                COUNT(1) AS ac
+            FROM
+                article
+            GROUP BY
+                article_meta_cat_id
+        ) temp ON temp.article_meta_cat_id = am.article_meta_id
+        WHERE
+            am.meta_type = #{metaType}
+    </select>
+    
+    <insert id="insertSelective" parameterType="com.payn.ink.domain.ArticleMeta">
+        insert into article_meta
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="metaName != null">
+            meta_name,
+          </if>
+          <if test="slug != null">
+            slug,
+          </if>
+          <if test="metaType != null">
+            meta_type,
+          </if>
+          <if test="description != null">
+            description,
+          </if>
+          <if test="sort != null">
+            sort,
+          </if>
+          <if test="parent != null">
+            parent,
+          </if>
+          <if test="gmtCreate != null">
+            gmt_create,
+          </if>
+          <if test="gmtModified != null">
+            gmt_modified,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="metaName != null">
+            #{metaName,jdbcType=VARCHAR},
+          </if>
+          <if test="slug != null">
+            #{slug,jdbcType=VARCHAR},
+          </if>
+          <if test="metaType != null">
+            #{metaType,jdbcType=VARCHAR},
+          </if>
+          <if test="description != null">
+            #{description,jdbcType=VARCHAR},
+          </if>
+          <if test="sort != null">
+            #{sort,jdbcType=INTEGER},
+          </if>
+          <if test="parent != null">
+            #{parent,jdbcType=INTEGER},
+          </if>
+          <if test="gmtCreate != null">
+            #{gmtCreate,jdbcType=TIMESTAMP},
+          </if>
+          <if test="gmtModified != null">
+            #{gmtModified,jdbcType=TIMESTAMP},
+          </if>
+        </trim>
+    </insert>
+    
+    <delete id="deleteByMetaId" parameterType="long">
+        delete from article_meta
+        where article_meta_id = #{articleMetaId}
+    </delete>
+    
+    <update id="updateByPrimaryKeySelective" parameterType="com.payn.ink.domain.ArticleMeta">
+        update article_meta
+        <set>
+          <if test="metaName != null">
+            meta_name = #{metaName,jdbcType=VARCHAR},
+          </if>
+          <if test="slug != null">
+            slug = #{slug,jdbcType=VARCHAR},
+          </if>
+          <if test="metaType != null">
+            meta_type = #{metaType,jdbcType=VARCHAR},
+          </if>
+          <if test="description != null">
+            description = #{description,jdbcType=VARCHAR},
+          </if>
+          <if test="sort != null">
+            sort = #{sort,jdbcType=INTEGER},
+          </if>
+          <if test="parent != null">
+            parent = #{parent,jdbcType=INTEGER},
+          </if>
+          <if test="gmtCreate != null">
+            gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+          </if>
+          <if test="gmtModified != null">
+            gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+          </if>
+        </set>
+        where article_meta_id = #{articleMetaId,jdbcType=BIGINT}
+    </update>
+    
+    <select id="countAticleInTag" resultType="long">
+        SELECT
+            COUNT(1)
+        FROM
+            article_tag atg
+        WHERE
+            atg.article_meta_tag_id = #{articleMetaId}
+    </select>
+    
+    <select id="getAllMetaCategory" resultType="com.payn.ink.vo.vdo.ArticleMetaVdo">
+        SELECT
+            article_meta_id,
+            meta_name
+        FROM
+            article_meta
+        WHERE
+            meta_type = 'category'
+    </select>
+    
+    <select id="getAllMetaTag" resultType="com.payn.ink.vo.vdo.ArticleMetaVdo">
+        SELECT
+            article_meta_id,
+            meta_name
+        FROM
+            article_meta
+        WHERE
+            meta_type = 'tag'
+    </select>
+    
+    <select id="getTagCountInfo" resultType="com.payn.ink.vo.vdo.ArticleMetaManageVdo">
+        SELECT
+            am.article_meta_id,
+            am.meta_name,
+            IFNULL(temp.num, 0) AS count
+        FROM
+            article_meta am
+        LEFT JOIN (
+            SELECT
+                article_meta_tag_id,
+                count(1) AS num
+            FROM
+                article_tag atg
+            WHERE
+                atg.article_meta_tag_id != ''
+            GROUP BY
+                atg.article_meta_tag_id
+        ) temp ON temp.article_meta_tag_id = am.article_meta_id
+    </select>
+    
+    <select id="countByMetaName" resultType="int" parameterType="com.payn.ink.domain.ArticleMeta">
+        SELECT COUNT(1) FROM article_meta WHERE meta_name = #{metaName} AND meta_type = #{metaType}
+    </select>
+
+</mapper>

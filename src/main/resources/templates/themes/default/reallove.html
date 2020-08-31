@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="partial/header::header" ></div>
+<link th:href="@{/themes/css/friend.css}" rel="stylesheet">
+<body>
+<div class="main-content index-page clearfix">
+	<div class="post-lists">
+		<div class="post-lists-body">
+			<div class="post-lists">
+				<div class="post-lists-body">
+					<div class="post-list-item">
+						<div class="post-list-item-container">
+							<a th:href="'/themes/img/bgimg/wechatpay.png'">
+								<div class="pay_img" th:style="'background-image:url('+'/themes/img/bgimg/wechatpay.png'+');'"></div>
+							</a>
+							<div class="item-label">
+								<div class="item-title">打多打少都是钱</div>
+							</div>
+						</div>
+					</div>
+					<div class="post-list-item">
+						<div class="post-list-item-container">
+							<a th:href="'/themes/img/bgimg/alipay.png'">
+								<div class="pay_img" th:style="'background-image:url('+'/themes/img/bgimg/alipay.png'+');'"></div>
+							</a>
+							<div class="item-label">
+								<div class="item-title">平平淡淡才是真</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

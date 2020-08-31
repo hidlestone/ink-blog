@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.ArticleCommentMapper">
+
+    <select id="getMainComment" resultType="com.payn.ink.vo.vdo.ArticleCommentVdo" parameterType="long">
+        SELECT
+            '1' AS commLevel,
+            article_comment_id AS articleCommentId,
+            article_id AS blogArticleId,
+            author_id AS authorId,
+            main_comment_id AS mainCommentId,
+            commentator_name AS commentatorName,
+            commentator_mail AS commentatorMail,
+            commentator_ip AS commentatorIp,
+            commentator_url AS commentatorUrl,
+            content AS content,
+            `type` AS type,
+            comment_status AS commentStatus,
+            parent_id AS parentId,
+            DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr,
+            DATE_FORMAT(gmt_modified,'%Y-%m-%d %H:%i:%s') AS gmtModifiedStr
+        FROM
+            article_comment
+        WHERE
+            parent_id = 0
+        AND article_id = #{blogArticleId} 
+    </select>
+    
+    <select id="getSubCommentList" resultType="com.payn.ink.vo.vdo.ArticleSubCommentVdo" parameterType="long">
+        SELECT
+            ac.article_comment_id AS articleCommentId,
+            ac.article_id AS articleId,
+            ac.author_id AS authorId,
+            ac.main_comment_id AS mainCommentId,
+            ac.commentator_name AS commentatorName,
+            CONCAT('@',temp.commentator_name,':') AS commentAtName,
+            ac.commentator_mail AS commentatorMail,
+            ac.commentator_url AS commentatorUrl,
+            ac.parent_id,
+            ac.content AS content,
+            ac.comment_status,
+            DATE_FORMAT(ac.gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM
+            article_comment ac
+        LEFT JOIN 
+            article_comment temp ON temp.article_comment_id = ac.parent_id
+        WHERE
+            ac.main_comment_id = #{articleCommentId}
+        ORDER BY ac.gmt_create ASC     
+    </select>
+    
+    <select id="getCommentatorNameById" resultType="java.lang.String" parameterType="long">
+        SELECT
+            commentator_name
+        FROM
+            article_comment
+        WHERE
+            article_comment_id = #{articleCommentId}
+    </select>
+    
+    <select id="recentComments" resultType="com.payn.ink.domain.ArticleComment">
+        SELECT
+            article_comment_id,
+            article_id,
+            commentator_name,
+            content
+        FROM
+            article_comment
+        ORDER BY
+            gmt_create DESC
+    </select>
+    
+    <insert id="insertSelective" parameterType="com.payn.ink.domain.ArticleComment">
+        insert into article_comment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="articleId != null">
+            article_id,
+          </if>
+          <if test="authorId != null">
+            author_id,
+          </if>
+          <if test="mainCommentId != null">
+            main_comment_id,
+          </if>
+          <if test="commentatorName != null">
+            commentator_name,
+          </if>
+          <if test="commentatorMail != null">
+            commentator_mail,
+          </if>
+          <if test="commentatorIp != null">
+            commentator_ip,
+          </if>
+          <if test="commentatorUrl != null">
+            commentator_url,
+          </if>
+          <if test="type != null">
+            type,
+          </if>
+          <if test="commentStatus != null">
+            comment_status,
+          </if>
+          <if test="parentId != null">
+            parent_id,
+          </if>
+          <if test="gmtCreate != null">
+            gmt_create,
+          </if>
+          <if test="gmtModified != null">
+            gmt_modified,
+          </if>
+          <if test="content != null">
+            content,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="articleId != null">
+            #{articleId,jdbcType=BIGINT},
+          </if>
+          <if test="authorId != null">
+            #{authorId,jdbcType=BIGINT},
+          </if>
+          <if test="mainCommentId != null">
+            #{mainCommentId,jdbcType=BIGINT},
+          </if>
+          <if test="commentatorName != null">
+            #{commentatorName,jdbcType=VARCHAR},
+          </if>
+          <if test="commentatorMail != null">
+            #{commentatorMail,jdbcType=VARCHAR},
+          </if>
+          <if test="commentatorIp != null">
+            #{commentatorIp,jdbcType=VARCHAR},
+          </if>
+          <if test="commentatorUrl != null">
+            #{commentatorUrl,jdbcType=VARCHAR},
+          </if>
+          <if test="type != null">
+            #{type,jdbcType=VARCHAR},
+          </if>
+          <if test="commentStatus != null">
+            #{commentStatus,jdbcType=BIT},
+          </if>
+          <if test="parentId != null">
+            #{parentId,jdbcType=BIGINT},
+          </if>
+          <if test="gmtCreate != null">
+            #{gmtCreate,jdbcType=TIMESTAMP},
+          </if>
+          <if test="gmtModified != null">
+            #{gmtModified,jdbcType=TIMESTAMP},
+          </if>
+          <if test="content != null">
+            #{content,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+    </insert>
+    
+    <select id="countCommentNum" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            article_comment
+    </select>
+    
+    <select id="countLastMonthComment" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            article_comment
+        WHERE
+            gmt_create BETWEEN DATE_FORMAT(DATE_ADD(NOW(), INTERVAL - 1 MONTH),'%Y-%m-01')
+        AND DATE_FORMAT(NOW(), '%Y-%m-01')
+    </select>
+    
+    <select id="countThisMonthComment" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            article_comment
+        WHERE
+            gmt_create BETWEEN DATE_FORMAT(NOW(), '%Y-%m-01')
+        AND DATE_FORMAT(DATE_ADD(NOW(), INTERVAL + 1 MONTH),'%Y-%m-01')
+    </select>
+    
+    <select id="getCommentPage" resultType="com.payn.ink.vo.vdo.ArticleCommentVdo">
+        SELECT
+            ar.title,
+            ac.content,
+            ac.article_id,
+            ac.main_comment_id,
+            ac.article_comment_id,
+            ac.commentator_name,
+            ac.commentator_mail,
+            ac.commentator_url,
+            ac.comment_status,
+            ac.parent_id,
+            DATE_FORMAT(ac.gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM
+            article_comment ac
+        LEFT JOIN article ar ON ar.article_id = ac.article_id
+        WHERE ac.main_comment_id = '0'   
+        ORDER BY ac.gmt_create DESC   
+    </select>
+    
+    <update id="deleteCommentById" parameterType="long">
+        UPDATE article_comment
+        SET comment_status = '0'
+        WHERE
+            article_comment_id = #{articleCommentId}
+    </update>
+    
+    <select id="getRelyListById" resultType="com.payn.ink.vo.vdo.ArticleCommentVdo">
+        SELECT
+            ar.title,
+            ac.content,
+            ac.article_id,
+            ac.main_comment_id,
+            ac.article_comment_id,
+            ac.commentator_name,
+            ac.commentator_mail,
+            ac.commentator_url,
+            ac.comment_status,
+            ac.parent_id,
+            DATE_FORMAT(ac.gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM
+            article_comment ac
+        LEFT JOIN article ar ON ar.article_id = ac.article_id    
+        WHERE main_comment_id = #{articleCommentId}   
+        ORDER BY ac.gmt_create DESC   
+    </select>
+    
+</mapper>

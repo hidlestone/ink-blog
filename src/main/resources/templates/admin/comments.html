@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="admin/header::header"></div>
+<body class="skin-black-light sidebar-mini">
+<div class="wrapper">
+	<!--头-->
+	<div th:replace="admin/sidebar::sidebar"></div>
+	<!-- 内容页 -->
+	<div class="content-wrapper">
+		<section class="content-header">
+			<h3>
+				评论管理
+			</h3>
+			<!--<ol class="breadcrumb">-->
+			<!--<li><a href="#"><i class="fa fa-dashboard"></i> </a></li>-->
+			<!--<li class="active">Dashboard</li>-->
+			<!--</ol>-->
+		</section>
+		<section class="content" th:id="main_comment_list" th:style="${type=='sub'?'display:none;':''}">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="box">
+						<div class="box-header">
+							<h3 class="box-title">主评论列表</h3>
+							
+							<div class="box-tools">
+								<div class="input-group input-group-sm" style="width: 220px;">
+									<input type="text" name="table_search" class="form-control pull-right"
+									       placeholder="Search">
+									
+									<div class="input-group-btn">
+										<button type="submit" class="btn btn-default"><i class="fa fa-search"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- /.box-header -->
+						<div class="box-body table-responsive no-padding">
+							<table class="table table-hover">
+								<tbody>
+								<tr>
+									<th>文章标题</th>
+									<th>评论内容</th>
+									<th>评论人</th>
+									<th>评论时间</th>
+									<th>评论人邮箱</th>
+									<th>评论人网址</th>
+									<th>评论状态</th>
+									<th>操作</th>
+								</tr>
+								<th:block th:each="comm : ${comments.list}">
+									<tr>
+										<td>
+											<th:block th:text="${comm.title}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.content}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.commentatorName}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.gmtCreateStr}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.commentatorMail}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.commentatorUrl}"/>
+										</td>
+										<td>
+											<th:block th:if="${comm.commentStatus} eq '1'">
+												<span class="label label-success">正常</span>
+											</th:block>
+											<th:block th:if="${comm.commentStatus} eq '0'">
+												<span class="label label-danger">删除</span>
+											</th:block>
+										</td>
+										<td>
+											<a th:onclick="'openRelyTab('+${comm.articleCommentId}+','+${comm.mainCommentId}+','+${comm.articleId}+',\''+${comm.content}+'\')'"
+											   class="btn btn-default btn-sm" href="#" title="回复">
+												<i class="fa fa-edit"></i>回复
+											</a>
+											<!--<a th:onclick="'openModule('+${comm.articleId}+','+${comm.articleCommentId}+')'" class="btn btn-default btn-sm" href="#" title="回复">
+												<i class="fa fa-edit"></i>回复
+											</a>-->
+											<a th:href="'?articleCommentId='+${comm.articleCommentId}"
+											   class="btn btn-default btn-sm" href="#" title="子评论">
+												<i class="fa fa-list"></i>子评论
+											</a>
+											<a th:onclick="'delComments('+${comm.articleCommentId}+')'"
+											   class="btn btn-danger btn-sm" href="#" title="删除">
+												<i class="fa fa-trash-o"></i>删除
+											</a>
+										</td>
+									</tr>
+								</th:block>
+								</tbody>
+							</table>
+						</div>
+						<div class="box-footer clearfix">
+							<div
+								th:replace="comm/macros :: pageAdminNav(${comments},'&articleCommentId='+${articleCommentId})"></div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+			</div>
+		</section>
+		
+		<section class="content" th:id="sub_comment_list" th:style="${type=='main'?'display:none;':''}">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="box">
+						<div class="box-header">
+							<h3 class="box-title">子评论列表</h3>
+							
+							<div class="box-tools">
+								<div class="input-group input-group-sm" style="width: 220px;">
+									<input type="text" name="table_search" class="form-control pull-right"
+									       placeholder="Search">
+									
+									<div class="input-group-btn">
+										<button type="submit" class="btn btn-default"><i class="fa fa-search"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- /.box-header -->
+						<div class="box-body table-responsive no-padding">
+							<table class="table table-hover">
+								<tbody>
+								<tr>
+									<th>文章标题</th>
+									<th>评论内容</th>
+									<th>评论人</th>
+									<th>评论时间</th>
+									<th>评论人邮箱</th>
+									<th>评论人网址</th>
+									<th>评论状态</th>
+									<th>操作</th>
+								</tr>
+								<th:block th:each="comm : ${comments.list}">
+									<tr>
+										<td>
+											<th:block th:text="${comm.title}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.content}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.commentatorName}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.gmtCreateStr}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.commentatorMail}"/>
+										</td>
+										<td>
+											<th:block th:text="${comm.commentatorUrl}"/>
+										</td>
+										<td>
+											<th:block th:if="${comm.commentStatus} eq '1'">
+												<span class="label label-success">正常</span>
+											</th:block>
+											<th:block th:if="${comm.commentStatus} eq '0'">
+												<span class="label label-danger">删除</span>
+											</th:block>
+										</td>
+										<td>
+											<a th:onclick="'openRelyTab('+${comm.articleCommentId}+','+${comm.mainCommentId}+','+${comm.articleId}+',\''+${comm.content}+'\')'"
+											   class="btn btn-default btn-sm" href="#" title="回复">
+												<i class="fa fa-edit"></i>回复
+											</a>
+											<a th:onclick="'delComments('+${comm.articleCommentId}+')'"
+											   class="btn btn-danger btn-sm" href="#" title="删除">
+												<i class="fa fa-trash-o"></i>删除
+											</a>
+										</td>
+									</tr>
+								</th:block>
+								</tbody>
+							</table>
+						</div>
+						<div class="box-footer clearfix">
+							<div
+								th:replace="comm/macros :: pageAdminNav(${comments},'&articleCommentId='+${articleCommentId})"></div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+			</div>
+		</section>
+	</div>
+	<!-- 底部 -->
+	<div th:replace="admin/footer::footer"></div>
+</div>
+</body>
+<script>
+    layui.use('layer', function () {
+    });
+
+    function delComments(id) {
+        layer.confirm('删除这条评论？', {
+            btn: ['是', '否'] //按钮
+        }, function () {
+            $.ajax({
+                url: '/admin/comments/delete',
+                method: "POST",
+                data: {"articleCommentId": id},
+                success: function (result) {
+                    if (result.success) {
+                        layer.msg(result.message, {icon: 1});
+                        setTimeout("location.reload();", 1000);
+                    } else {
+                        layer.msg(result.message, {icon: 2});
+                    }
+                }
+            })
+        }, function () {
+        });
+    }
+
+    var commentId;
+    var mainCommentId;
+    var articleId;
+    var content;
+    //打开评论编辑弹出框
+    function openRelyTab(cid, mcId, aid, qcontent) {
+        commentId = cid;
+        mainCommentId = mcId;
+        articleId = aid;
+        content = qcontent;
+        openDetial("Rely Comment", ['600px', '400px'], "/rely_editor.html", "ApplicationSave");
+    }
+
+    function openDetial(title, area, path, sucFunName, callBack) {
+        layer.open({
+            type: 2,
+            title: title, //不显示标题栏
+            closeBtn: 2,
+            area: area,
+            shade: 0.8,
+            id: (new Date()).valueOf(), //设定一个id，防止重复弹出 时间戳1280977330748
+            btn: ['保存', '取消'],
+            btnAlign: 'r',
+            moveType: 1, //拖拽模式，0或者1
+            content: path,
+            success: function (layero, index) {    //成功获得加载changefile.html时，预先加载，将值从父窗口传到 子窗口
+                var body = layer.getChildFrame('body', index);
+                body.find("#comment_content").val(content);
+                body.find("#comment_id").val(commentId);
+                body.find("#main_comment_id").val(mainCommentId);
+                body.find("#article_id").val(articleId);
+            },
+            yes: function (index, layero) {
+                var btn = layero.find('.layui-layer-btn').find('.layui-layer-btn0');
+                try {
+                    var _ifr = btn[0].parentNode.parentNode.getElementsByClassName("layui-layer-content")[0].children[0].contentWindow ||
+                        btn[0].parentNode.parentNode.getElementsByClassName("layui-layer-content")[0].children[0].children[0].contentWindow;
+                    var func = new Function('_ifr', "return _ifr." + sucFunName + "();");
+                    var flg = func(_ifr);
+                    if (flg == false) {
+                        return false;
+                    } else {
+                        // if (callBack != null) callBack();
+                        // window.location.reload();
+                    }
+                } catch (ex) {
+
+                }
+            },
+            btn2: function (index, layero) {
+            }
+        });
+    }
+</script>
+</html>

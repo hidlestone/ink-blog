@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="partial/header::header" ></div>
+<link th:href="@{/themes/css/friend.css}" rel="stylesheet">
+<script src="/admin/layui/layui.js"></script>
+<body>
+
+<div>
+	<div class="comment-container">
+		<div class="question_img" th:style="'background-image:url('+'/themes/img/qa.png'+');'"></div>
+		<div id="comments" class="clearfix">
+			<div th:if="${questionAnswers}">
+                <span class="response"></span>
+				<form method="post" id="comment-form" class="comment-form" role="form"
+				      onsubmit="return TaleComment.saveQuestionAnswer();" style="margin-top: -30px;">
+					<input type="hidden" name="questionId" id="qid"/>
+					<input type="text" name="authorName" maxlength="12" id="author"
+					       class="form-control input-control clearfix"
+					       placeholder="昵称 (*)"
+					/>
+					<input type="email" name="authorMail" maxlength="200" id="mail" class="form-control input-control clearfix"
+					       placeholder="邮箱 (*)"
+					/>
+					<input type="url" name="authorUrl" maxlength="200" id="url" class="form-control input-control clearfix"
+					       placeholder="网址 (http://)"
+					/>
+					<textarea name="content" id="textarea" class="form-control" placeholder="试试提个问题，也许会有人回答~！"
+					          required="required" minlength="5"
+					          maxlength="2000"></textarea>
+					<!--<button type="init" class="init_question" id="init_question" onclick="initQuestion();" style="margin-right: 80px">提问模式</button>-->
+					<button type="submit" class="submit" id="misubmit">提问</button>
+				</form>
+			</div>
+			<div th:unless="${allowQuestion}">
+				<span class="response">提问已关闭.</span>
+			</div>
+			
+			<div th:if="${questionAnswers}">
+				<ol class="comment-list">
+					<th:block th:each="questionAnswer :${questionAnswers.list}">
+						<li th:id="'li-comment-'+${questionAnswer.questionId}"
+						    class="comment-body comment-parent comment-odd">
+							<div th:id="'comment-'+${questionAnswer.questionId}">
+								<div class="comment-view" onclick="">
+									<div class="comment-header">
+										<!--设置get请求的参数-->
+										<th:block th:if="${questionAnswer.questionerName=='payn'}">
+											<a th:href="${questionAnswer.questionerUrl}">
+												<img class="avatar"
+												     th:src="@{'/themes/img/avtar/admin.jpg'}"
+												     th:title="${questionAnswer.questionerName}"
+												     width="80" height="80"/>
+											</a>
+										</th:block>
+										<th:block th:unless="${questionAnswer.questionerName=='payn'}">
+											<a th:href="${questionAnswer.questionerUrl}">
+												<img class="avatar"
+												     th:src="@{'/themes/img/avtar/r'+${questionAnswer.questionId%9}+'.jpg'}"
+												     th:title="${questionAnswer.questionerName}"
+												     width="80" height="80"/>
+											</a>
+										</th:block>
+										<span class="comment-author" style="font-weight: bolder;">
+                                             <a th:href="${questionAnswer.questionerUrl}" rel="external nofollow" 
+                                                th:text="${questionAnswer.questionerName}"></a>
+                                        </span>
+									</div>
+									<div class="comment-content">
+										<span class="comment-author-at"></span>
+										<p th:utext="${questionAnswer.questionStatus=='1'?questionAnswer.questionContent:'【内容已被删除】'}"></p>
+									</div>
+									<div class="comment-meta">
+										<time class="comment-time" th:text="${questionAnswer.questionGmtCreateStr}"></time>
+										<span class="comment-reply">
+                                              <a rel="nofollow" 
+                                                 th:onclick="'TaleComment.questionReply('+${questionAnswer.questionId}+',\''+${questionAnswer.questionerName}+'\')'">回复</a>
+                                        </span>
+									</div>
+								</div>
+							</div>
+							
+							<div class="comment-children">
+								<ol class="comment-list">
+									<th:block th:each="answer :${questionAnswer.answerList}">
+										<li th:id="'li-comment-'+${answer.answerId}"
+										    class="comment-body comment-child comment-level-odd comment-odd">
+											<div th:id="'comment-'+${answer.answerId}">
+												<div class="comment-view" style="margin-left: 40px;">
+													<div class="comment-header">
+														<th:block th:if="${answer.answerName=='payn'}">
+															<a th:href="${answer.answerUrl}">
+																<img class="avatar"
+																     th:src="@{'/themes/img/avtar/admin.jpg'}"
+																     th:title="${answer.answerName}"
+																     width="80" height="80"/>
+															</a>
+														</th:block>
+														<th:block th:unless="${answer.answerName=='payn'}">
+															<a th:href="${answer.answerUrl}">
+																<img class="avatar"
+																     th:src="@{'/themes/img/avtar/m'+${answer.answerId%9}+'.jpg'}"
+																     th:title="${answer.answerName}"
+																     width="80" height="80"/>
+															</a>
+														</th:block>
+														<span class="comment-author comment-by-author"
+														      style="font-weight: bolder;">
+                                                            <a th:href="${answer.answerUrl}" rel="external nofollow"
+                                                               th:text="${answer.answerName}"></a>
+                                                        </span>
+													</div>
+													<div class="comment-content">
+                                                        <span class="comment-author-at">
+                                                            <a th:href="'#comment-'+${answer.questionId}"
+                                                               th:text="${answer.questionerName}"></a>
+                                                        </span>
+														<p th:utext="${answer.answerStatus=='1'?answer.answerContent:'【内容已被删除】'}"></p>
+													</div>
+													<div class="comment-meta">
+														<time class="comment-time"
+														      th:text="${answer.answerGmtCreateStr}"></time>
+														<!--<span class="comment-reply">
+                                                            <a rel="nofollow"
+                                                               th:onclick="'TaleComment.reply('+${child.articleCommentId}+','+${comment.articleCommentId}+',\''+${child.commentatorName}+'\')'">回复</a>
+                                                        </span>-->
+													</div>
+												</div>
+											</div>
+										</li>
+									</th:block>
+								</ol>
+							</div>
+					
+						</li>
+					</th:block>
+				</ol>
+				
+				<div class="lists-navigator clearfix">
+					<ol class="page-navigator">
+						<th:block th:if="${questionAnswers.hasPreviousPage}">
+							<li class="prev"><a th:href="'?cp='+${questionAnswers.prePage}+'#comments'"><<</a></li>
+						</th:block>
+						<th:block th:each="navIndex : ${questionAnswers.navigatepageNums}">
+							<th:block th:if="${(navIndex>=questionAnswers.pageNum-1) && (navIndex<=questionAnswers.pageNum+1)}">
+								<li th:class="${questionAnswers.pageNum}==${navIndex}?'current':''"><a
+									th:href="'?cp='+${navIndex}+'#questionAnswers'" th:text="${navIndex}"></a>
+								</li>
+							</th:block>
+						</th:block>
+						<th:block th:if="${questionAnswers.hasNextPage}">
+							<li class="next"><a th:href="'?cp='+${questionAnswers.nextPage}+'#comments'">>></a></li>
+						</th:block>
+					</ol>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+
+<div th:replace="comm/comment::comment"></div>
+<div th:replace="partial/footer::footer" ></div>
+</html>
+<script>
+
+
+</script>

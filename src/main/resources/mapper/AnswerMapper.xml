@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.AnswerMapper">
+  
+  <select id="getAllAnswerByQuestionId" resultType="com.payn.ink.vo.vdo.AnswerVdo" parameterType="long">
+      SELECT
+          answer_id,
+          question_id,
+          answer_name,
+          answer_mail,
+          answer_ip,
+          answer_url,
+          answer_status AS answerStatus,
+          content AS answerContent,
+          DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS answerGmtCreateStr,
+          DATE_FORMAT(gmt_modified,'%Y-%m-%d %H:%i:%s') AS answermtModifiedStr
+      FROM
+          answer
+      WHERE
+          question_id = #{questionId}
+      AND answer_status = '1'    
+  </select>
+    
+  <insert id="insertSelective" parameterType="com.payn.ink.domain.Answer">
+    insert into answer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="questionId != null">
+        question_id,
+      </if>
+      <if test="answerName != null">
+        answer_name,
+      </if>
+      <if test="answerMail != null">
+        answer_mail,
+      </if>
+      <if test="answerIp != null">
+        answer_ip,
+      </if>
+      <if test="answerUrl != null">
+        answer_url,
+      </if>
+      <if test="answerStatus != null">
+        answer_status,
+      </if>
+      <if test="gmtCreate != null">
+        gmt_create,
+      </if>
+      <if test="gmtModified != null">
+        gmt_modified,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="questionId != null">
+        #{questionId,jdbcType=BIGINT},
+      </if>
+      <if test="answerName != null">
+        #{answerName,jdbcType=VARCHAR},
+      </if>
+      <if test="answerMail != null">
+        #{answerMail,jdbcType=VARCHAR},
+      </if>
+      <if test="answerIp != null">
+        #{answerIp,jdbcType=VARCHAR},
+      </if>
+      <if test="answerUrl != null">
+        #{answerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="answerStatus != null">
+        #{answerStatus,jdbcType=CHAR},
+      </if>
+      <if test="gmtCreate != null">
+        #{gmtCreate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null">
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="getAnswerPage" resultType="com.payn.ink.vo.vdo.AnswerVdo" parameterType="long">
+      SELECT
+          answer_id,
+          answer_name,
+          answer_mail,
+          answer_ip,
+          answer_url,
+          answer_status,
+          DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS answerGmtCreateStr,
+          content AS answerContent
+      FROM
+          answer
+      WHERE question_id = #{questionId}
+  </select>
+    
+    <update id="deleteAnswerById" parameterType="long">
+        UPDATE answer SET answer_status = '0' WHERE answer_id = #{answerId}
+    </update>
+
+
+
+</mapper>

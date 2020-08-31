@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.AttachMapper">
+  
+    <select id="countAttachNum" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            attach
+    </select>
+    
+    <select id="countLastMonthUpload" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            attach
+        WHERE
+            gmt_create BETWEEN DATE_FORMAT(DATE_ADD(NOW(), INTERVAL - 1 MONTH),'%Y-%m-01')
+        AND DATE_FORMAT(NOW(), '%Y-%m-01')
+    </select>
+    
+    <select id="countThisMonthUpload" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            attach
+        WHERE
+            gmt_create BETWEEN DATE_FORMAT(NOW(), '%Y-%m-01')
+        AND DATE_FORMAT(DATE_ADD(NOW(), INTERVAL + 1 MONTH),'%Y-%m-01')
+    </select>
+    
+    <select id="getUploadImgPage" resultType="com.payn.ink.vo.vdo.AttachVdo">
+        SELECT
+            attach_id,
+            fname,
+            fkey
+        FROM
+            attach
+        WHERE
+            ftype = 'image'
+        ORDER BY
+            gmt_create DESC
+    </select>
+    
+    <insert id="insertSelective">
+        insert into attach
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="userId != null">
+            user_id,
+          </if>
+          <if test="fname != null">
+            fname,
+          </if>
+          <if test="ftype != null">
+            ftype,
+          </if>
+          <if test="fkey != null">
+            fkey,
+          </if>
+          <if test="gmtCreate != null">
+            gmt_create,
+          </if>
+          <if test="gmtModified != null">
+            gmt_modified,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="userId != null">
+            #{userId,jdbcType=BIGINT},
+          </if>
+          <if test="fname != null">
+            #{fname,jdbcType=VARCHAR},
+          </if>
+          <if test="ftype != null">
+            #{ftype,jdbcType=VARCHAR},
+          </if>
+          <if test="fkey != null">
+            #{fkey,jdbcType=VARCHAR},
+          </if>
+          <if test="gmtCreate != null">
+            #{gmtCreate,jdbcType=TIMESTAMP},
+          </if>
+          <if test="gmtModified != null">
+            #{gmtModified,jdbcType=TIMESTAMP},
+          </if>
+        </trim>
+    </insert>
+    
+    <delete id="deleteFileById" parameterType="long">
+        delete from attach
+        where attach_id = #{attachId}
+    </delete>
+    
+    <select id="getAttachById" resultType="com.payn.ink.domain.Attach" parameterType="long">
+        SELECT
+            attach_id,
+            user_id,
+            fname,
+            ftype,
+            fkey,
+            gmt_create,
+            gmt_modified
+        FROM
+            attach
+        WHERE
+            attach_id = #{attachId}
+    </select>
+
+</mapper>

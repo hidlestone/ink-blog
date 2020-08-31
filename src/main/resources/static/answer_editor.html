@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="header">
+<head>
+	<meta name="viewport" content="width =device-width, initial-scale=1"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Content-Language" content="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<title>JpAutoFramework</title>
+	<meta content="victor" name="author"/>
+</head>
+
+<body οnlοad="load()" style="margin: auto">
+<script src="//cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+<script src="/admin/layui/layui.js"></script>
+<link href="/themes/css/xcode.min.css" rel="stylesheet">
+<link href="/themes/css/style.min.css" rel="stylesheet">
+<form>
+	<table id="data" class="editorTable" style="margin: auto; margin-top: 10px; width: 80%;">
+		<tr style="display: none;">
+			<th> questionId</th>
+			<td id="question_id"></td>
+		</tr>
+		<!--<tr>
+			<th> 账目类型</th>
+			<td>
+				<select type="text" id="ISOUT">
+					<option value="0">支出</option>
+					<option value="1">收入</option>
+					<option value="2">信用卡消费</option>
+					<option value="3">信用卡还款</option>
+				</select>
+			</td>
+		</tr>-->
+		<tr>
+			<th>问题：</th>
+			<td>
+				<textarea id="question_content" rows="5" cols="55" id="Remark1" style="resize:none" readonly></textarea>
+			</td>
+		</tr>
+		<tr>
+			<th>回答：</th>
+			<td>
+				<textarea id="answer_content" rows="7" cols="55" id="Remark2" style="resize:none"></textarea>
+			</td>
+		</tr>
+	</table>
+</form>
+</body>
+</html>
+<script type="text/javascript">
+    layui.use('layer', function () {
+    });
+    function ApplicationSave() {
+        var questionId = document.getElementById('question_id').value;
+        var answerContent = document.getElementById('answer_content').value;
+        if (answerContent.trim() == '') {
+            layer.msg("输入的内容不能为空", {icon: 2})
+            return;
+        }
+        $.ajax({
+            url: '/admin/question/addanswer',
+            method: "POST",
+            data: {"questionId": questionId, "content": answerContent},
+            success: function (result) {
+                if (result.success) {
+                    layer.msg(result.message, {icon: 1});
+                    setTimeout("var index = parent.layer.getFrameIndex(window.name);parent.layer.close(index); ", 2000);
+                } else {
+                    layer.msg(result.message, {icon: 2})
+                }
+            }
+        })
+    }
+</script>

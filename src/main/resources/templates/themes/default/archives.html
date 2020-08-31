@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="partial/header::header" ></div>
+<body>
+<div class="main-content archive-page clearfix">
+    <div class="categorys-item">
+        <th:block th:each="archive : ${archives.list}">
+            <div class="categorys-title" th:text="${archive.dateStr}"></div>
+            <div class="post-lists">
+                <div class="post-lists-body">
+                    <th:block th:each="article : ${archive.articleList}">
+                        <div class="post-list-item">
+                            <div class="post-list-item-container">
+                                <div class="item-label">
+                                    <div class="item-title">
+                                        <a th:href="'/article/'+${article.articleId}" th:text="${article.title}"></a>
+                                    </div>
+                                    <div class="item-meta clearfix">
+                                        <div class="item-meta-date">发布于 <th:block th:text="${article.gmtCreateStr}"/></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </th:block>
+    </div>
+    <div class="lists-navigator clearfix">
+        <div th:replace="comm/macros::pageNav(${archives},'<<','>>','archives')"></div>
+    </div>
+</div>
+</body>
+<div th:replace="partial/footer::html" ></div>
+</html>

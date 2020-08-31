@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.QuestionMapper">
+    
+    <select id="getQuestionAnswerPage" resultType="com.payn.ink.vo.vdo.QuestionAnswerVdo">
+        SELECT
+            question_id,
+            questioner_name,
+            questioner_mail,
+            questioner_url,
+            question_status,
+            content AS questionContent,
+            DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS questionGmtCreateStr,
+            DATE_FORMAT(gmt_modified,'%Y-%m-%d %H:%i:%s') AS questionGmtModifiedStr
+        FROM
+            question
+        ORDER BY
+            gmt_create DESC          
+    </select>
+    
+    <insert id="insertSelective" parameterType="com.payn.ink.domain.Question">
+        insert into question
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="questionerName != null">
+            questioner_name,
+          </if>
+          <if test="questionerMail != null">
+            questioner_mail,
+          </if>
+          <if test="questionerIp != null">
+            questioner_ip,
+          </if>
+          <if test="questionerUrl != null">
+            questioner_url,
+          </if>
+          <if test="questionStatus != null">
+            question_status,
+          </if>
+          <if test="gmtCreate != null">
+            gmt_create,
+          </if>
+          <if test="gmtModified != null">
+            gmt_modified,
+          </if>
+          <if test="content != null">
+            content,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="questionerName != null">
+            #{questionerName,jdbcType=VARCHAR},
+          </if>
+          <if test="questionerMail != null">
+            #{questionerMail,jdbcType=VARCHAR},
+          </if>
+          <if test="questionerIp != null">
+            #{questionerIp,jdbcType=VARCHAR},
+          </if>
+          <if test="questionerUrl != null">
+            #{questionerUrl,jdbcType=VARCHAR},
+          </if>
+          <if test="questionStatus != null">
+            #{questionStatus,jdbcType=CHAR},
+          </if>
+          <if test="gmtCreate != null">
+            #{gmtCreate,jdbcType=TIMESTAMP},
+          </if>
+          <if test="gmtModified != null">
+            #{gmtModified,jdbcType=TIMESTAMP},
+          </if>
+          <if test="content != null">
+            #{content,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+    </insert>
+    
+    <select id="countQuestionNum" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            question
+        WHERE
+            question_status = '1'
+    </select>
+    
+    <select id="getQuestionPage" resultType="com.payn.ink.vo.vdo.QuestionVdo">
+        SELECT
+            question_id,
+            questioner_name,
+            questioner_mail,
+            questioner_url,
+            content,
+            question_status,
+            DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM
+            question
+        ORDER BY gmt_create DESC
+    </select>
+    
+    <update id="deleteQuestionById" parameterType="long">
+        UPDATE question
+        SET question_status = '0'
+        WHERE
+            question_id = #{questionId}
+    </update>
+
+</mapper>

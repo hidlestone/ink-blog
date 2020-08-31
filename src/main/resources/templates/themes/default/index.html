@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="partial/header::header"></div>
+<body>
+<div class="main-content index-page clearfix">
+	<div class="post-lists">
+		<div class="post-lists-body">
+			<div class="post-list-item" th:each="article: ${articles.list}">
+				<div class="post-list-item-container">
+					<div class="item-thumb bg-deepgrey" th:style="'background-image:url('+@{${commons.getThumbImgUrl(article.articleId)}}+');'"></div>
+					<a th:href="'/article/'+${article.articleId}">
+						<div class="item-desc">
+							<p th:text="${article.content}"></p>
+						</div>
+					</a>
+					<div class="item-slant reverse-slant bg-deepgrey"></div>
+					<div class="item-slant"></div>
+					<div class="item-label">
+						<div class="item-title"><a th:href="'/article/'+${article.articleId}" th:text="${article.title}">title</a>
+						</div>
+						<div class="item-meta clearfix">
+							<a th:href="'/category/'+${article.articleMetaCatId}">
+								<div th:class="'item-meta-ico '+ ${commons.getCategoryIcon(article.articleId)}"
+								     th:style="'background: url('+@{/themes/img/bg-ico.png}+') no-repeat;background-size: 40px auto;'"></div>
+							</a>
+							<div class="item-meta-cat">
+								<a th:href="'/category/'+${article.articleMetaCatId}" th:text="${article.category}"></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="lists-navigator clearfix">
+		<div th:replace="comm/macros::pageNav(${articles},'<<','>>','page')"></div>
+	</div>
+</div>
+</body>
+<div th:replace="partial/footer::footer" ></div>
+</html>
+
+       

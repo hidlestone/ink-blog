@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.SystemSettingMapper">
+
+    <select id="getAllSysSettings" resultType="com.payn.ink.domain.SystemSetting">
+        SELECT
+            system_key AS systemKey,
+            system_value AS systemValue
+        FROM
+            system_setting        
+    </select>
+
+    <update id="updateSystemSettingByKey" parameterType="com.payn.ink.domain.SystemSetting">
+        UPDATE system_setting
+        SET system_value = #{systemValue} 
+        WHERE
+            system_key = #{systemKey} 
+    </update>
+    
+    <select id="countByKey" resultType="int">
+        SELECT COUNT(1) FROM system_setting WHERE system_key = #{systemKey} 
+    </select>
+    
+    <insert id="insertSelective" parameterType="com.payn.ink.domain.SystemSetting">
+        insert into system_setting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="systemKey != null">
+            system_key,
+          </if>
+          <if test="systemValue != null">
+            system_value,
+          </if>
+          <if test="description != null">
+            description,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="systemKey != null">
+            #{systemKey,jdbcType=VARCHAR},
+          </if>
+          <if test="systemValue != null">
+            #{systemValue,jdbcType=VARCHAR},
+          </if>
+          <if test="description != null">
+            #{description,jdbcType=VARCHAR},
+          </if>
+        </trim>
+    </insert>
+
+</mapper>

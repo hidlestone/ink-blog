@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.payn.ink.mapper.ArticleMapper">
+
+    <select id="getPostArticlePage" resultType="com.payn.ink.vo.vdo.ArticleVdo">
+        SELECT
+            ar.article_id AS articleId,
+            ar.article_meta_cat_id,
+            ar.user_id AS userId,
+            ar.title,
+            ar.slug,
+            ar.thumb_img AS thumbImg,
+            ar.content,
+            ar.article_type AS articleType,
+            ar.hit,
+            ar.comment_num AS commentNum,
+            ar.allow_comment AS allowComment,
+            ar.allow_ping AS allowPing,
+            ar.allow_feed AS allowFeed,
+            ar.allow_thumb_img AS allowThumbImg,
+            ar.gmt_create AS gmtCreate,
+            ar.gmt_modified AS gmtModified,
+            am.meta_name AS category
+        FROM
+            article ar
+        LEFT JOIN article_meta am ON ar.article_meta_cat_id = am.article_meta_id
+        WHERE
+            ar.article_type = 'post'  
+        AND ar.article_status = '1'           
+    </select>
+
+    <select id="selectByPrimaryKey" resultType="com.payn.ink.vo.vdo.ArticleVdo" parameterType="long">
+        SELECT
+            ar.article_id,
+            ar.user_id,
+            ar.article_meta_cat_id,
+            ar.title,
+            ar.content,
+            ar.slug,
+            ar.thumb_img,
+            ar.content article_type,
+            ar.article_status,
+            ar.editor_type,
+            m.meta_name AS category,
+            ar.hit,
+            ar.comment_num,
+            ar.allow_comment,
+            ar.allow_ping,
+            ar.allow_feed,
+            ar.allow_thumb_img,
+            DATE_FORMAT(ar.gmt_create,'%Y-%m-%d %H:%i:%s') AS publishDateStr,
+            DATE_FORMAT(ar.gmt_modified,'%Y-%m-%d %H:%i:%s') AS modifiedDateStr
+        FROM
+            article ar
+        LEFT JOIN article_meta m ON m.article_meta_id = ar.article_meta_cat_id
+        WHERE
+            ar.article_id = #{articleId}
+    </select>
+
+    <select id="getArticleBySlug" resultType="com.payn.ink.vo.vdo.ArticleVdo" parameterType="string">
+        SELECT
+            article_id,
+            user_id,
+            article_meta_cat_id,
+            title,
+            content,
+            slug,
+            thumb_img,
+            content article_type,
+            article_status,
+            editor_type,
+            hit,
+            comment_num,
+            allow_comment,
+            allow_ping,
+            allow_feed,
+            allow_thumb_img,
+            DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr,
+            DATE_FORMAT(gmt_modified,'%Y-%m-%d %H:%i:%s') AS gmtModifiedStr
+        FROM
+            article
+        WHERE
+            slug = #{slug}
+    </select>
+
+    <select id="selectArcticleArcheiveByMonth" resultType="com.payn.ink.vo.vdo.ArticleArchiveDateVdo">
+        SELECT
+          DATE_FORMAT(gmt_create,'%Y年%m月') AS dateStr,
+          count(article_id) AS count
+        FROM
+          article
+        WHERE
+          article_type = 'post'
+        AND article_status = 1
+        GROUP BY
+          dateStr
+        ORDER BY
+          dateStr DESC
+    </select>
+
+    <select id="getBetweenDateArticleList" resultType="com.payn.ink.vo.vdo.ArticleVdo" parameterType="map">
+        SELECT
+            article_id,
+            title,
+            DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM
+            article
+        WHERE  
+            gmt_create BETWEEN DATE_FORMAT(#{startDate},'%Y-%m-%d %H:%i:%s') 
+        AND DATE_FORMAT(#{endDate},'%Y-%m-%d %H:%i:%s') 
+        AND article_type = 'post'
+        AND article_status = '1'
+    </select>
+
+    <select id="getArticleByTagId" resultType="com.payn.ink.vo.vdo.ArticleVdo" parameterType="long">
+        SELECT
+            atg.article_id,
+            ar.title,
+            DATE_FORMAT(ar.gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM
+            article_tag atg
+        LEFT JOIN article ar ON ar.article_id = atg.article_id
+        WHERE
+            atg.article_meta_tag_id = #{articleMetaId}
+        AND atg.article_id != ''  
+        AND ar.article_status = '1'
+        ORDER BY ar.gmt_create DESC
+    </select>
+
+    <select id="getArticleByKeyword" resultType="com.payn.ink.vo.vdo.ArticleVdo" parameterType="string">
+        SELECT
+            ba.article_id,
+            ba.title,
+            DATE_FORMAT(ba.gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr,
+            hit,
+            am.meta_name AS category,
+            ba.article_status
+        FROM
+            article ba
+        LEFT JOIN article_meta am ON am.article_meta_id = ba.article_meta_cat_id
+        WHERE
+            ba.article_type = 'post'
+        AND ba.article_status = 1
+        AND (ba.title LIKE CONCAT('%', #{keyword, jdbcType=VARCHAR}, '%')
+            OR ba.content LIKE CONCAT('%', #{keyword, jdbcType=VARCHAR}, '%')
+        )
+        ORDER BY
+            ba.gmt_create DESC
+    </select>
+
+    <select id="getThumbImgById" resultType="java.lang.String" parameterType="long">
+        SELECT
+            thumb_img
+        FROM
+            article
+        WHERE
+            article_id = #{articleId:BIGINT}
+    </select>
+    
+    <select id="getPrevArticleId" resultType="java.lang.String" parameterType="long">
+        SELECT
+            IFNULL(MAX(article_id), #{articleId})
+        FROM
+            article
+        WHERE
+            article_id <![CDATA[<]]> #{articleId}
+        AND article_type = 'post'
+        AND article_status = '1'
+    </select>
+    
+    <select id="getNextArticleId" resultType="java.lang.String" parameterType="long">
+        SELECT
+            IFNULL(MIN(article_id), #{articleId})
+        FROM
+            article
+        WHERE
+            article_id <![CDATA[>]]> #{articleId}
+        AND article_type = 'post'
+        AND article_status = '1'
+    </select>
+    
+    <select id="recentArticles" resultType="com.payn.ink.domain.Article">
+        SELECT
+            article_id,
+            title
+        FROM
+            article
+        WHERE
+            article_type = 'post'
+        AND article_status = '1'
+        ORDER BY
+            gmt_create DESC
+    </select>
+    
+    <select id="getAllowRssArticle" resultType="com.payn.ink.vo.vdo.ArticleVdo">
+        SELECT
+            article_id,
+            title,
+            content,
+            gmt_create
+        FROM
+            article
+        WHERE
+            article_type = 'post'
+        AND article_status = '1'
+        AND allow_feed = '1'
+        ORDER BY
+            gmt_create DESC
+    </select>
+    
+    <update id="updateCachedHitByArticleId" parameterType="map">
+        update article
+        set hit = #{hit}
+        WHERE article_id = #{articleId}
+    </update>
+    
+    <select id="countArticleNum" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            article
+        WHERE
+            article_status != '3'
+        AND article_type = 'post'
+    </select>
+    
+    <select id="countLastMonthPubArticle" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            article
+        WHERE
+            gmt_create BETWEEN DATE_FORMAT(DATE_ADD(NOW(), INTERVAL - 1 MONTH),'%Y-%m-01')
+        AND DATE_FORMAT(NOW(), '%Y-%m-01')
+    </select>
+    
+    <select id="countThisMonthPubArticle" resultType="java.lang.Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            article
+        WHERE
+            gmt_create BETWEEN DATE_FORMAT(NOW(), '%Y-%m-01')
+        AND DATE_FORMAT(DATE_ADD(NOW(), INTERVAL + 1 MONTH),'%Y-%m-01')
+    </select>
+    
+    <update id="updateArticleToDefaultCategory" parameterType="long">
+        update article
+        set article_meta_cat_id = '0'
+        WHERE article_meta_cat_id = #{articleMetaCatId}
+    </update>
+    
+    <select id="selectSlugPages" resultType="com.payn.ink.vo.vdo.ArticleVdo">
+        SELECT
+            article_id,
+            title,
+            slug,
+            DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr,
+            article_status,
+            allow_comment,
+            editor_type
+        FROM
+            article
+        WHERE
+            article_type = 'page'
+        AND article_status = '1'
+    </select>
+    
+    <update id="deleteArticleById" parameterType="long">
+        UPDATE article
+        SET    article_status = '3'
+        where article_id = #{articleId}
+    </update>
+    
+    <select id="getArticlePage" resultType="com.payn.ink.vo.vdo.ArticleVdo">
+        SELECT
+            ar.article_id,
+            ar.title,
+            DATE_FORMAT(ar.gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr,
+            ar.hit,
+            am.meta_name AS category,
+            ar.article_status,
+            ar.allow_comment,
+            ar.editor_type
+        FROM
+            article ar
+        LEFT JOIN article_meta am ON am.article_meta_id = ar.article_meta_cat_id
+        WHERE
+            ar.article_type = 'post'
+        AND ar.article_status = '1'
+    </select>
+    
+    <insert id="insertSelective" parameterType="com.payn.ink.vo.invo.ArticlePublishInVo" useGeneratedKeys="true"
+            keyProperty="articleId">
+        insert into article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="userId != null">
+            user_id,
+          </if>
+          <if test="articleMetaCatId != null">
+            article_meta_cat_id,
+          </if>
+          <if test="title != null">
+            title,
+          </if>
+          <if test="slug != null">
+            slug,
+          </if>
+          <if test="thumbImg != null">
+            thumb_img,
+          </if>
+          <if test="articleType != null">
+            article_type,
+          </if>
+          <if test="articleStatus != null">
+            article_status,
+          </if>
+          <if test="editorType != null">
+            editor_type,
+          </if>
+          <if test="hit != null">
+            hit,
+          </if>
+          <if test="commentNum != null">
+            comment_num,
+          </if>
+          <if test="allowComment != null">
+            allow_comment,
+          </if>
+          <if test="allowPing != null">
+            allow_ping,
+          </if>
+          <if test="allowFeed != null">
+            allow_feed,
+          </if>
+          <if test="allowThumbImg != null">
+            allow_thumb_img,
+          </if>
+          <if test="content != null">
+            content,
+          </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+          <if test="userId != null">
+            #{userId,jdbcType=BIGINT},
+          </if>
+          <if test="articleMetaCatId != null">
+            #{articleMetaCatId,jdbcType=BIGINT},
+          </if>
+          <if test="title != null">
+            #{title,jdbcType=VARCHAR},
+          </if>
+          <if test="slug != null">
+            #{slug,jdbcType=VARCHAR},
+          </if>
+          <if test="thumbImg != null">
+            #{thumbImg,jdbcType=VARCHAR},
+          </if>
+          <if test="articleType != null">
+            #{articleType,jdbcType=VARCHAR},
+          </if>
+          <if test="articleStatus != null">
+            #{articleStatus,jdbcType=CHAR},
+          </if>
+          <if test="editorType != null">
+            #{editorType,jdbcType=VARCHAR},
+          </if>
+          <if test="hit != null">
+            #{hit,jdbcType=BIGINT},
+          </if>
+          <if test="commentNum != null">
+            #{commentNum,jdbcType=BIGINT},
+          </if>
+          <if test="allowComment != null">
+            #{allowComment,jdbcType=CHAR},
+          </if>
+          <if test="allowPing != null">
+            #{allowPing,jdbcType=CHAR},
+          </if>
+          <if test="allowFeed != null">
+            #{allowFeed,jdbcType=CHAR},
+          </if>
+          <if test="allowThumbImg != null">
+            #{allowThumbImg,jdbcType=CHAR},
+          </if>
+          <if test="content != null">
+            #{content,jdbcType=LONGVARCHAR},
+          </if>
+        </trim>
+    </insert>
+    
+    <update id="updateByArticleIdSelective" parameterType="com.payn.ink.vo.invo.ArticlePublishInVo">
+        update article
+        <set>
+          <if test="articleMetaCatId != null">
+            article_meta_cat_id = #{articleMetaCatId,jdbcType=BIGINT},
+          </if>
+          <if test="title != null">
+            title = #{title,jdbcType=VARCHAR},
+          </if>
+          <if test="slug != null">
+            slug = #{slug,jdbcType=VARCHAR},
+          </if>
+          <if test="thumbImg != null">
+            thumb_img = #{thumbImg,jdbcType=VARCHAR},
+          </if>
+          <if test="articleType != null">
+            article_type = #{articleType,jdbcType=VARCHAR},
+          </if>
+          <if test="articleStatus != null">
+            article_status = #{articleStatus,jdbcType=CHAR},
+          </if>
+          <if test="editorType != null">
+            editor_type = #{editorType,jdbcType=VARCHAR},
+          </if>
+          <if test="allowComment != null">
+            allow_comment = #{allowComment,jdbcType=CHAR},
+          </if>
+          <if test="allowPing != null">
+            allow_ping = #{allowPing,jdbcType=CHAR},
+          </if>
+          <if test="allowFeed != null">
+            allow_feed = #{allowFeed,jdbcType=CHAR},
+          </if>
+          <if test="allowThumbImg != null">
+            allow_thumb_img = #{allowThumbImg,jdbcType=CHAR},
+          </if>
+          <if test="content != null">
+            content = #{content,jdbcType=LONGVARCHAR},
+          </if>
+        </set>
+        where article_id = #{articleId,jdbcType=BIGINT}
+    </update>
+    
+    <update id="updateCommentNum" parameterType="long">
+        UPDATE article
+        SET comment_num = (comment_num + 1)
+        WHERE
+            article_id = #{articleId}
+    </update>
+    
+    <select id="countAticleInCategory" resultType="int">
+        SELECT COUNT(1) FROM article WHERE article_meta_cat_id = #{articleMetaCatId}
+    </select>
+    
+    <select id="getArticlearticleMetaId" resultType="com.payn.ink.vo.vdo.ArticleVdo">
+        SELECT
+            article_id,
+            title,
+             DATE_FORMAT(gmt_create,'%Y-%m-%d %H:%i:%s') AS gmtCreateStr
+        FROM article
+        WHERE article_meta_cat_id = #{articleMetaId}   
+        AND   article_status = '1'
+        ORDER BY gmt_create DESC 
+    </select>
+    
+</mapper>

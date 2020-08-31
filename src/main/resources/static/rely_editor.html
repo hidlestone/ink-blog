@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="header">
+<head>
+	<meta name="viewport" content="width =device-width, initial-scale=1"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Content-Language" content="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<title>JpAutoFramework</title>
+	<meta content="victor" name="author"/>
+</head>
+
+<body οnlοad="load()" style="margin: auto">
+<script src="//cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+<script src="/admin/layui/layui.js"></script>
+<link href="/themes/css/xcode.min.css" rel="stylesheet">
+<link href="/themes/css/style.min.css" rel="stylesheet">
+<form>
+	<table id="data" class="editorTable" style="margin: auto; margin-top: 10px; width: 80%;">
+		<tr style="display: none;">
+			<td id="comment_id"></td>
+			<td id="main_comment_id"></td>
+			<td id="article_id"></td>
+		</tr>
+		<tr>
+			<th>评论：</th>
+			<td>
+				<textarea id="comment_content" rows="5" cols="55" id="Remark1" style="resize:none" readonly></textarea>
+			</td>
+		</tr>
+		<tr>
+			<th>回复：</th>
+			<td>
+				<textarea id="rely_content" rows="7" cols="55" id="Remark2" style="resize:none"></textarea>
+			</td>
+		</tr>
+	</table>
+</form>
+</body>
+</html>
+<script type="text/javascript">
+    layui.use('layer', function () {
+    });
+    function ApplicationSave() {
+        var commentId = document.getElementById('comment_id').value;
+        var mainCommentId = document.getElementById('main_comment_id').value;
+        var articleId = document.getElementById('article_id').value;
+        var relyContent = document.getElementById('rely_content').value;
+        if (relyContent.trim() == '') {
+            layer.msg("输入的内容不能为空", {icon: 2})
+            return;
+        }
+        if (mainCommentId=='0'){
+            mainCommentId = commentId;
+        }
+        var param = {
+            "articleId":articleId,
+	        "mainCommentId":mainCommentId,
+	        "content":relyContent,
+	        "parentId":commentId
+        }
+        $.ajax({
+            url: '/admin/comments/addrely',
+            method: "POST",
+            data: param,
+            success: function (result) {
+                if (result.success) {
+                    layer.msg(result.message, {icon: 1});
+                    setTimeout("var index = parent.layer.getFrameIndex(window.name);parent.layer.close(index);window.location.reload();", 2000);
+                } else {
+                    layer.msg(result.message, {icon: 2})
+                }
+            }
+        })
+    }
+</script>

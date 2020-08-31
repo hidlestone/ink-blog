@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="partial/header::header"></div>
+<!--<script src="/admin/js/jquery.windstagball.js"></script>-->
+<script src="//cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+<link th:href="@{/themes/css/xcode.min.css}" rel="stylesheet">
+<link th:href="@{/themes/css/style.min.css}" rel="stylesheet">
+<style>
+	#tagCloud {
+		position: relative; /*width:350px; height:350px;*/
+		margin: 20px auto 0;
+	}
+	
+	#tagCloud a {
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		font-family: Microsoft YaHei;
+		color: #000;
+		font-weight: bold;
+		text-decoration: none;
+		padding: 3px 6px;
+	}
+	
+	/*#tagCloud a:hover {border: 1px solid #eee; background: #FFF; }*/
+</style>
+<body id="sbody">
+<div class="main-content page-page clearfix">
+	<div class="search-page">
+		<form role="search" onsubmit="return false;">
+            <span class="search-box">
+                <input type="text" id="search-inp" class="input" placeholder="搜索文章标题..." maxlength="30"
+                       autocomplete="off">
+                <button type="submit" class="spsubmit"><i class="icon-search"></i></button>
+            </span>
+		</form>
+		<div class="search-tags-c" id="search-tags-c" style="text-align: center;padding-bottom: 200px;">
+			<p style="margin-bottom: 180px;">👇 The following tags can help you!</p>
+			<!--<th:block th:each="meta : ${metas}">
+				<a th:href="${commons.site_url('/tag/')}+${meta.blogArticleMeta.metaName}" class="bg-white" th:text="${meta.blogArticleMeta.metaName}+'('+${meta.count}+')'"></a>
+			</th:block>
+			<div class="search-tags-hr bg-deepgrey"></div>
+			<p th:if="${metas}==null">暂时还没有记录哟!</p>-->
+			<th:div th:if="${metas}!=null" id="tagCloud" style="margin-top:50px">
+				<th:block th:each="meta : ${metas}">
+					<a th:href="'/tag/'+${meta.articleMetaId}" th:text="${meta.metaName}+'-'+${meta.count}"
+					   class="tags"></a>
+				</th:block>
+			</th:div>
+			<!--<div class="search-tags-hr bg-deepgrey"></div>-->
+			<p th:if="${metas}==null">暂时还没有记录哟!</p>
+		</div>
+	</div>
+</div>
+</body>
+<div th:replace="partial/footer::footer"></div>
+</html>
+<script src="/admin/js/jquery.windstagball.js"></script>
+<script type="text/javascript">
+    function rand(m, n) {
+        // 获取随机数
+        var num = Math.floor(Math.random() * (n - m + 1)) + m;
+        // 返回随机数
+        return num;
+    }
+    function changeBg(obj) {
+        obj.style.color = 'rgb(' + rand(0, 255) + ',' + rand(0, 255) + ',' + rand(0, 255) + ')';
+    }
+
+    $(document).ready(function () {
+        /*var tags = document.getElementsByClassName('tags');
+        for (var i = 0; i < tags.length; i++) {
+            changeBg(tags[i]);
+        }*/
+        //如果没有加载css,则加载 
+        if ($('link[ref$="style.min.css"]').length == 0) {
+            {
+                $('<link th:href="@{/themes/css/style.min.css}" rel="stylesheet">').appendTo('head');
+            }
+        }
+        if ($('link[ref$="style.min.css"]').length == 0) {
+            {
+                $('<link th:href="@{/themes/css/style.min.css}" rel="stylesheet">').appendTo('head');
+            }
+        }
+        $("#tagCloud").windstagball({
+            radius: 170,
+            speed: 3
+        });
+    });
+
+</script>

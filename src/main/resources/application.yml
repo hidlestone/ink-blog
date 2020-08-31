@@ -1,0 +1,103 @@
+spring:
+  profiles:
+    active: local
+  thymeleaf:
+      prefix: classpath:/templates/
+      mode: HTML
+      encoding: UTF-8  
+#mybatis配置
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true  #按驼峰命名规则自动匹配到实体类上,不需要用别名
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.payn.ink.domain
+pagehelper:
+    helperDialect: mysql
+    reasonable: true
+    supportMethodsArguments: true
+    params: count=countSql 
+---    
+spring:
+  profiles: local
+  cache:
+    type: ehcache
+    ehcache:
+      config: classpath:ehcache.xml    
+  thymeleaf:
+    cache: false
+  mvc:
+    favicon:
+      enabled: true   #网站默认图标
+  datasource:          #数据源
+    url: jdbc:mysql://localhost:3306/inkblog_test?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    dbcp2: #显然这样的如下配置并没有生效 TODO参照笔记修改
+      test-on-borrow: true
+      test-while-idle: true
+      time-between-eviction-runs-millis: 3600000
+      min-evictable-idle-time-millis: 300000
+      remove-abandoned-on-borrow: true
+      remove-abandoned-timeout: 1800
+      max-wait-millis: 60000
+      initial-size: 5
+      min-idle: 5
+      max-idle: 20
+      max-total: 20
+server:
+  port: 80
+#logging:
+# log/inkblog.log
+#  file: D:/log/inkblog.log  #日志文件位置
+inkblog:   #自定义属性
+  filePath: D:/var/upload_files/
+  databaseName: inkblog_test
+  mysqlExec: F:/SOFTWARE/mysql/mysql-5.7.27-winx64/bin/mysqldump -uroot -proot inkblog
+  backupPath: D:/inkblog/backup/
+---
+spring:
+  profiles: prod
+  cache:
+    type: ehcache
+    ehcache:
+      config: classpath:ehcache.xml    
+  mvc:
+    favicon:
+      enabled: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://132.232.128.142:3306/payn_inkblog?useUnicode=true&characterEncoding=UTF-8 #外网地址
+    #url: jdbc:mysql://172.27.0.12:3306/payn_inkblog?useUnicode=true&characterEncoding=UTF-8 #内网地址
+    username: root_payn
+    password: root_nanq*123$
+    initialSize: 1
+    minIdle: 3
+    maxActive: 20
+    # 配置获取连接等待超时的时间
+    maxWait: 60000
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 30000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+server:
+  port: 3010
+#  ssl:
+#    key-store: classpath:ssl/1534728933823.pfx
+#    key-store-password: 1534728933823
+#    key-store-type: PKCS12
+#logging:
+#  file: /opt/inkblog/log/inkblog.log
+inkblog:   #自定义属性
+  filePath: /opt/inkblog/files/
+  databaseName: payn_inkblog
+  mysqlExec: /usr/bin/mysqldump -uroot_payn -proot_nanq*123$ payn_inkblog
+  backupPath: /opt/inkblog/backup/
+  

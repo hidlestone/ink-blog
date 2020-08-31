@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="comments">
+<link th:href="@{/themes/css/xcode.min.css}" rel="stylesheet">
+<link th:href="@{/themes/css/style.min.css}" rel="stylesheet">
+<body>
+<div th:if="${article}!=null">
+	<div th:id="${article.articleId ?: 0}" class="comment-container">
+		<div id="comments" class="clearfix">
+			<div th:if="${article.allowComment}">
+                <span class="response">
+                <!--<th:block th:if="${session.login_user}">
+                    Hi，<a th:href="${session.login_user.homeUrl}" data-no-instant=""
+                          th:text="${session.login_user.username}"></a>
+                    如果你想 <a href="/logout" title="注销" data-no-instant="">注销</a> ?
+                </th:block>-->
+            </span>
+				<form method="post" id="comment-form" class="comment-form" role="form"
+				      onsubmit="return TaleComment.subComment();">
+					<input type="hidden" name="articleCommentId" id="coid"/>
+					<input type="hidden" name="articleId" id="cid" th:value="${article.articleId}"/>
+					<input type="hidden" name="mainCommentId" id="ownerId" value="0"/>
+					<input type="text" name="commentatorName" maxlength="12" id="author"
+					       class="form-control input-control clearfix"
+					       placeholder="昵称 (*)"
+					/>
+					<input type="email" name="commentatorMail" id="mail" class="form-control input-control clearfix"
+					       placeholder="邮箱 (*)"
+					/>
+					<input type="url" name="commentatorUrl" id="url" class="form-control input-control clearfix"
+					       placeholder="网址 (http://)"
+					/>
+					<textarea name="content" id="textarea" class="form-control" placeholder="给我留点什么吧~！"
+					          required="required" minlength="5"
+					          maxlength="2000"></textarea>
+					<button type="submit" class="submit" id="misubmit">提交</button>
+				</form>
+			</div>
+			<div th:unless="${article.allowComment}">
+				<span class="response">评论已关闭.</span>
+			</div>
+			
+			<div th:if="${comments}">
+				<ol class="comment-list">
+					<th:block th:each="comment :${comments.list}">
+						<li th:id="'li-comment-'+${comment.articleCommentId}"
+						    class="comment-body comment-parent comment-odd">
+							<div th:id="'comment-'+${comment.articleCommentId}">
+								<div class="comment-view" onclick="">
+									<div class="comment-header">
+										<!--设置get请求的参数-->
+										<th:block th:if="${comment.commentatorName=='payn'}">
+											<a th:href="${comment.commentatorUrl ?: '#'}">
+												<img class="avatar"
+												     th:src="@{'/themes/img/avtar/admin.jpg'}"
+												     th:title="${comment.commentatorName}"
+												     width="80" height="80"/>
+											</a>
+										</th:block>
+										<th:block th:unless="${comment.commentatorName=='payn'}">
+											<a th:href="${comment.commentatorUrl ?: '#'}">
+												<img class="avatar"
+												     th:src="@{'/themes/img/avtar/r'+${comment.articleCommentId%9}+'.jpg'}"
+												     th:title="${comment.commentatorName}"
+												     th:href="${comment.commentatorUrl}"
+												     width="80" height="80"/>
+											</a>
+										</th:block>
+										<span class="comment-author" style="font-weight: bolder;">
+                                             <a th:href="${comment.commentatorUrl ?: '#'}" 
+                                                rel="external nofollow" th:text="${comment.commentatorName}"></a>
+                                        </span>
+									</div>
+									<div class="comment-content">
+										<span class="comment-author-at"></span>
+										<p th:utext="${comment.commentStatus=='1'?comment.content:'【内容已被删除】'}"></p>
+									</div>
+									<div class="comment-meta">
+										<time class="comment-time" th:text="${comment.gmtCreateStr}"></time>
+										<span class="comment-reply">
+                                              <a rel="nofollow"
+                                                 th:onclick="'TaleComment.reply('+${comment.articleCommentId}+','+${comment.articleCommentId}+',\''+${comment.commentatorName}+'\')'">回复</a>
+                                        </span>
+									</div>
+								</div>
+							</div>
+							<th:block th:if="${comment.commLevel} > 0">
+								<div class="comment-children">
+									<ol class="comment-list">
+										<th:block th:each="child :${comment.subCommentList}">
+											<li th:id="'li-comment-'+${child.articleCommentId}"
+											    class="comment-body comment-child comment-level-odd comment-odd">
+												<div th:id="'comment-'+${child.articleCommentId}">
+													<div class="comment-view" style="margin-left: 40px;">
+														<div class="comment-header">
+															<th:block th:if="${child.commentatorName=='payn'}">
+																<a th:href="${child.commentatorUrl ?: '#'}">
+																	<img class="avatar"
+																	     th:src="@{'/themes/img/avtar/admin.jpg'}"
+																	     th:title="${child.commentatorName}"
+																	     width="80" height="80"/>
+																</a>
+															</th:block>
+															<th:block th:unless="${child.commentatorName=='payn'}">
+																<a th:href="${child.commentatorUrl ?: '#'}">
+																	<img class="avatar"
+																	     th:src="@{'/themes/img/avtar/m'+${child.articleCommentId%9}+'.jpg'}"
+																	     th:title="${child.commentatorName}"
+																	     width="80" height="80"/>
+																</a>
+															</th:block>
+															<span class="comment-author comment-by-author"
+															      style="font-weight: bolder;">
+                                                                <a th:href="${child.commentatorUrl ?: '#'}" 
+                                                                   rel="external nofollow"
+                                                                   th:text="${child.commentatorName}"></a>
+                                                            </span>
+														</div>
+														<div class="comment-content">
+                                                            <span class="comment-author-at">
+                                                                <a th:href="'#comment-'+${child.parentId}"
+                                                                   th:text="${child.commentAtName}"></a>
+                                                            </span>
+															<p th:utext="${child.commentStatus=='1'?child.content:'【内容已被删除】'}"></p>
+														</div>
+														<div class="comment-meta">
+															<time class="comment-time"
+															      th:text="${child.gmtCreateStr}"></time>
+															<span class="comment-reply">
+                                                                <a rel="nofollow"
+                                                                   th:onclick="'TaleComment.reply('+${child.articleCommentId}+','+${comment.articleCommentId}+',\''+${child.commentatorName}+'\')'">回复</a>
+                                                            </span>
+														</div>
+													</div>
+												</div>
+											</li>
+										</th:block>
+									</ol>
+								</div>
+							</th:block>
+						</li>
+					</th:block>
+				</ol>
+				
+				<div class="lists-navigator clearfix">
+					<ol class="page-navigator">
+						<th:block th:if="${comments.hasPreviousPage}">
+							<li class="prev"><a th:href="'?cp='+${comments.prePage}+'#comments'"><<</a></li>
+						</th:block>
+						<th:block th:each="navIndex : ${comments.navigatepageNums}">
+							<th:block th:if="${(navIndex>=comments.pageNum-1) && (navIndex<=comments.pageNum+1)}">
+								<li th:class="${comments.pageNum}==${navIndex}?'current':''"><a
+									th:href="'?cp='+${navIndex}+'#comments'" th:text="${navIndex}"></a>
+								</li>
+							</th:block>
+						</th:block>
+						<th:block th:if="${comments.hasNextPage}">
+							<li class="next"><a th:href="'?cp='+${comments.nextPage}+'#comments'">>></a></li>
+						</th:block>
+					</ol>
+				
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<div th:replace="comm/comment::comment"></div>
+</html>
