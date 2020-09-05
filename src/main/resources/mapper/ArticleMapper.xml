@@ -286,8 +286,9 @@
             article ar
         LEFT JOIN article_meta am ON am.article_meta_id = ar.article_meta_cat_id
         WHERE
-            ar.article_type = 'post'
-        AND ar.article_status = '1'
+            ar.article_type IN ('post','draft') 
+        AND ar.article_status IN ('0','1')
+		ORDER BY ar.gmt_create DESC
     </select>
     
     <insert id="insertSelective" parameterType="com.payn.ink.vo.invo.ArticlePublishInVo" useGeneratedKeys="true"
