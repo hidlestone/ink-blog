@@ -13,6 +13,7 @@ import com.payn.ink.service.ArticleCommentService;
 import com.payn.ink.service.ArticleMetaService;
 import com.payn.ink.service.ArticleService;
 import com.payn.ink.service.UserService;
+import com.payn.ink.service.common.MailService;
 import com.payn.ink.util.ContentUtil;
 import com.payn.ink.util.CookieUtil;
 import com.payn.ink.util.EHCacheUtil;
@@ -23,6 +24,7 @@ import com.payn.ink.vo.outvo.ArticleMetaOutVo;
 import com.payn.ink.vo.vdo.ArticleCommentVdo;
 import com.payn.ink.vo.vdo.ArticleMetaVdo;
 import com.payn.ink.vo.vdo.ArticleVdo;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -64,6 +66,8 @@ public class IndexController {
 	private ArticleMetaService articleMetaService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private MailService mailService;
 
 	/**
 	 * INKBLOG首页及首页数据
@@ -268,7 +272,7 @@ public class IndexController {
 	 */
 	@ResponseBody
 	@PostMapping("/comment")
-	public ResponseResult visitorComment(ArticleComment articleComment, HttpServletRequest request, HttpServletResponse response) {
+	public ResponseResult visitorComment(ArticleComment articleComment, HttpServletRequest request, HttpServletResponse response) throws MessagingException, javax.mail.MessagingException {
 		//ip地址+评论的文章id
 		String key = IPUtil.getIpAddrByRequest(request) + ":article:" + articleComment.getArticleId();
 		String value = (String) EHCacheUtil.get(TypeEnum.COMMENTS_FREQUENCY.getType(), key);
@@ -339,6 +343,17 @@ public class IndexController {
 		}
 		//文章更新评论数量
 		int c = articleService.updateCommentNum(articleComment.getArticleId());
+
+		//邮件通知
+		String parentMail = articleCommentService.getCommentatorMainById(articleComment.getParentId());
+		if (StringUtils.isNotEmpty(articleComment.getCommentatorMail()) && StringUtils.isNotEmpty(parentMail)) {
+			String siteUrl = InkConstants.INIT_CONFIG_MAP.get("site_url");
+			Long articleId = articleComment.getArticleId();///article/2#comment-8
+			Long commentId = articleComment.getArticleCommentId();
+			String content = "<a href='http://" + siteUrl + "/article/" + articleId + "comment-" + commentId + "'>【INK|BLOG】点击评论详情</a>";
+			content += "<p>" +">>> "+ articleComment.getContent() + "</p>";
+			mailService.sendHtmlMail(parentMail, "【INK|BLOG】评论回复", content);
+		}
 		return ResponseResult.success("发布评论成功！");
 	}
 
@@ -355,7 +370,7 @@ public class IndexController {
 			printWriter.write(xml);
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			logger.error("===== feed article fail =====");
+			logger.error("====== feed article fail ======");
 		}
 	}
 

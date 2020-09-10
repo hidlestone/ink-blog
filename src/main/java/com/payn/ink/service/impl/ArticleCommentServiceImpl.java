@@ -77,4 +77,9 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 		return new PageInfo<>(articleCommentVdos);
 	}
 
+	@Override
+	public String getCommentatorMainById(Long parentId) {
+		return articleCommentMapper.getCommentatorMainById(parentId);
+	}
+
 }

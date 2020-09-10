@@ -230,4 +230,13 @@
         ORDER BY ac.gmt_create DESC   
     </select>
     
+    <select id="getCommentatorMainById" resultType="java.lang.String">
+        SELECT
+            commentator_name
+        FROM
+            commentator_mail
+        WHERE
+            article_comment_id = #{articleCommentId}
+    </select>
+
 </mapper>

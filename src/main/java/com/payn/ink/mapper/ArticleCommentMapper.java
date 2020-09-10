@@ -29,4 +29,6 @@ public interface ArticleCommentMapper {
 	int deleteCommentById(Long articleCommentId);
 
 	List<ArticleCommentVdo> getRelyListById(Long articleCommentId);
+
+	String getCommentatorMainById(Long articleCommentId);
 }

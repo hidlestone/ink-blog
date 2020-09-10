@@ -29,4 +29,6 @@ public interface ArticleCommentService {
 	ResponseResult deleteCommentById(Long articleCommentId);
 
 	PageInfo<ArticleCommentVdo> showRelyListById(int pageNum, int pageSize, Long articleCommentId);
+
+	String getCommentatorMainById(Long parentId);
 }

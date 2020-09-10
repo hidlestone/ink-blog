@@ -110,6 +110,8 @@
         AND DATE_FORMAT(#{endDate},'%Y-%m-%d %H:%i:%s') 
         AND article_type = 'post'
         AND article_status = '1'
+        ORDER BY
+          gmt_create DESC
     </select>
 
     <select id="getArticleByTagId" resultType="com.payn.ink.vo.vdo.ArticleVdo" parameterType="long">
