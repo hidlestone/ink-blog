@@ -1,6 +1,5 @@
 package com.payn.ink.service.common.service;
 
-import cn.hutool.core.io.resource.ResourceUtil;
 import com.payn.ink.service.common.InkblogApplicationTests;
 import com.payn.ink.service.common.MailService;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 
 import javax.mail.MessagingException;
-import java.net.URL;
 
 /**
  * <p>

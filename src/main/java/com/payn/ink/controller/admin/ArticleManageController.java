@@ -39,7 +39,7 @@ public class ArticleManageController {
 	 * 文章管理页面
 	 */
 	@RequestMapping("")
-	public String index(@RequestParam(value = "pageNmu", defaultValue = "1") int pageNum,
+	public String index(@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
 						@RequestParam(value = "pageSize", defaultValue = "10") int pageSize, HttpServletRequest request) {
 		PageInfo<ArticleVdo> articlePageInfo = articleService.getArticlePage(pageNum, pageSize);
 		request.setAttribute("articles", articlePageInfo);
